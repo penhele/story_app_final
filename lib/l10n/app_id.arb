@@ -1,0 +1,50 @@
+{
+    "postedOn": "Diunggah pada {date}",
+    "@postedOn": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "descriptionTitle": "Deskripsi",
+    "cameraLabel": "Kamera",
+    "galleryLabel": "Galeri",
+    "addStoryAppBar": "Tambah Cerita",
+    "descriptionLabel": "Deskripsi",
+    "descriptionHint": "Masukkan deskripsi",
+    "uploadLabel": "Unggah",
+    "errorSelectImage": "Pilih gambar terlebih dahulu!",
+    "errorFileTooLarge": "File terlalu besar! Maksimum 1MB.",
+    "errorEmptyDescription": "Deskripsi tidak boleh kosong!",
+    "errorUploadFailed": "Upload gagal!",
+    "errorUnexpected": "Terjadi kesalahan: {err}",
+    "@errorUnexpected": {
+        "placeholders": {
+            "err": {
+                "type": "String"
+            }
+        }
+    },
+    "welcomeBackText": "Selamat Datang Kembali!",
+    "loginPromptText": "Silakan masuk ke akun Anda.",
+    "emailLabel": "Email",
+    "passwordLabel": "Kata Sandi",
+    "loginButtonText": "MASUK",
+    "registerButtonText": "DAFTAR",
+    "invalidLoginMessage": "Email atau kata sandi Anda tidak valid.",
+    "createAccountText": "Buat Akun",
+    "registerPromptText": "Daftar untuk memulai.",
+    "nameLabel": "Nama",
+    "nameValidationError": "Harap masukkan nama Anda.",
+    "emailValidationError": "Harap masukkan email Anda.",
+    "passwordValidationError": "Harap masukkan kata sandi Anda.",
+    "loginAppBar": "Layar Masuk",
+    "registerAppBar": "Layar Pendaftaran",
+    "failedToLoadData": "Gagal memuat data",
+    "checkYourConnection": "Periksa koneksi Anda!",
+    "retry": "Coba Lagi",
+    "loading": "Memuat...",
+    "loadingData": "Memuat data...",
+    "logoutTooltip": "Keluar"
+}
