@@ -164,7 +164,7 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
     try {
       final result = await addStoryProvider.addStory(addStory);
       if (result) {
-        context.read<StoryListProvider>().fetchStoryList();
+        context.read<StoryListProvider>().refreshStoryList;
         widget.toHomeScreen();
       } else {
         scaffoldMessenger.showSnackBar(

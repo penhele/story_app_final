@@ -57,4 +57,12 @@ class StoryListProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> refreshStoryList() async {
+    pageItems = 1;
+    stories = [];
+    notifyListeners();
+
+    fetchStoryList();
+  }
 }
