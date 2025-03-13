@@ -30,6 +30,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final ScrollController scrollController = ScrollController();
+
   void _fetchStoryList() {
     Future.microtask(() {
       Provider.of<StoryListProvider>(context, listen: false).fetchStoryList();
@@ -40,7 +42,24 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
+    final storyListProvider = context.read<StoryListProvider>();
+
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent) {
+        if (storyListProvider.pageItems != null) {
+          storyListProvider.fetchStoryList();
+        }
+      }
+    });
+
     _fetchStoryList();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -65,17 +84,34 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Consumer<StoryListProvider>(
         builder: (context, value, child) {
-          return switch (value.resultState) {
-            StoryListLoadingState() => Center(
+          if (value.resultState is StoryListLoadingState &&
+              value.pageItems == 1) {
+            return Center(
               child: LoadingAnimationWidget.waveDots(
                 color: Colors.blue,
                 size: 50,
               ),
-            ),
-            StoryListLoadedState(data: var storyList) => ListView.builder(
+            );
+          } else if (value.resultState is StoryListLoadedState) {
+            final storyList = value.stories;
+
+            return ListView.builder(
+              controller: scrollController,
               padding: const EdgeInsets.only(bottom: 18),
-              itemCount: storyList.length,
+              itemCount: storyList.length + (value.pageItems != null ? 1 : 0),
               itemBuilder: (context, index) {
+                if (index == storyList.length && value.pageItems != null) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: LoadingAnimationWidget.waveDots(
+                        color: Colors.blue,
+                        size: 50,
+                      ),
+                    ),
+                  );
+                }
+
                 final story = storyList[index];
 
                 return StoryListWidget(
@@ -83,15 +119,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () => widget.onTapped(story.id),
                 );
               },
-            ),
-            StoryListErrorState(error: var message) => Center(
+            );
+          } else if (value.resultState is StoryListErrorState) {
+            final message = (value.resultState as StoryListErrorState).error;
+            return Center(
               child: HomeErrorState(
                 errorMessage: message,
                 onRetry: _fetchStoryList,
               ),
-            ),
-            _ => Center(child: Text(AppLocalizations.of(context)!.loadingData)),
-          };
+            );
+          } else {
+            return Center(
+              child: Text(AppLocalizations.of(context)!.loadingData),
+            );
+          }
         },
       ),
       floatingActionButton: SpeedDial(

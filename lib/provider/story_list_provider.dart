@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:story_app_final/data/model/story/story.dart';
 import '../data/api/api_service.dart';
 import '../provider/auth_provider.dart';
 import '../static/story_list_result_state.dart';
@@ -16,10 +17,14 @@ class StoryListProvider extends ChangeNotifier {
   int? pageItems = 1;
   int sizeItems = 10;
 
+  List<Story> stories = [];
+
   Future<void> fetchStoryList() async {
     try {
-      _resultState = StoryListLoadingState();
-      notifyListeners();
+      if (pageItems == 1) {
+        _resultState = StoryListLoadingState();
+        notifyListeners();
+      }
 
       final token = _authProvider.token;
 
@@ -29,13 +34,22 @@ class StoryListProvider extends ChangeNotifier {
         return;
       }
 
-      final result = await _apiService.getStories(token);
+      final result = await _apiService.getStories(token, pageItems!, sizeItems);
+
+      stories.addAll(result.stories);
 
       if (result.error) {
         _resultState = StoryListErrorState(result.message);
         notifyListeners();
       } else {
         _resultState = StoryListLoadedState(result.stories);
+
+        if (result.stories.length < sizeItems) {
+          pageItems = null;
+        } else {
+          pageItems = pageItems! + 1;
+        }
+
         notifyListeners();
       }
     } on Exception catch (e) {
