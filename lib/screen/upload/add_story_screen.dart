@@ -157,8 +157,8 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
     final AddStoryRequest addStory = AddStoryRequest(
       description: descriptionController.text,
       photo: imageFile,
-      lat: null,
-      lon: null,
+      lat: -6.8957473,
+      lon: 107.6337669,
     );
 
     try {
