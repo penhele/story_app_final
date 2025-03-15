@@ -12,7 +12,11 @@ import '../model/story/story_list_response.dart';
 class ApiService {
   static const String _baseUrl = "https://story-api.dicoding.dev/v1";
 
-  Future<StoryListResponse> getStories(String token, [int page = 1, int size = 10]) async {
+  Future<StoryListResponse> getStories(
+    String token, [
+    int page = 1,
+    int size = 10,
+  ]) async {
     final response = await http.get(
       Uri.parse("$_baseUrl/stories?page=$page&size=$size"),
       headers: {"Authorization": "Bearer $token"},
@@ -60,18 +64,22 @@ class ApiService {
 
     if (kIsWeb) {
       final bytes = await addStoryData.photo.readAsBytes();
-      request.files.add(http.MultipartFile.fromBytes(
-        "photo",
-        bytes,
-        filename: addStoryData.photo.name,
-        contentType: MediaType.parse(mimeType),
-      ));
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          "photo",
+          bytes,
+          filename: addStoryData.photo.name,
+          contentType: MediaType.parse(mimeType),
+        ),
+      );
     } else {
-      request.files.add(await http.MultipartFile.fromPath(
-        "photo",
-        addStoryData.photo.path,
-        contentType: MediaType.parse(mimeType),
-      ));
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          "photo",
+          addStoryData.photo.path,
+          contentType: MediaType.parse(mimeType),
+        ),
+      );
     }
 
     var streamedResponse = await request.send();
