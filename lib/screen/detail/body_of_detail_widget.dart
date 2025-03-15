@@ -1,7 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geocoding/geocoding.dart' as geo;
+import 'package:story_app_final/screen/detail/show_image_widget.dart';
 import '../../data/common/common.dart';
 import '../../data/model/story/story.dart';
 
@@ -17,6 +17,7 @@ class BodyOfDetailWidget extends StatefulWidget {
 class _BodyOfDetailWidgetState extends State<BodyOfDetailWidget> {
   GoogleMapController? mapController;
   final Set<Marker> markers = {};
+  geo.Placemark? placemark;
 
   @override
   void initState() {
@@ -42,6 +43,7 @@ class _BodyOfDetailWidgetState extends State<BodyOfDetailWidget> {
 
   @override
   void dispose() {
+    markers.clear();
     mapController?.dispose();
     super.dispose();
   }
@@ -49,6 +51,7 @@ class _BodyOfDetailWidgetState extends State<BodyOfDetailWidget> {
   @override
   Widget build(BuildContext context) {
     bool hasLocation = widget.story.lat != null && widget.story.lon != null;
+    // bool locationValid
 
     if (hasLocation) {
       return _withMap();
@@ -67,7 +70,35 @@ class _BodyOfDetailWidgetState extends State<BodyOfDetailWidget> {
               zoom: 18,
               target: LatLng(widget.story.lat! - 0.0005, widget.story.lon!),
             ),
-            onMapCreated: (controller) {
+            onMapCreated: (controller) async {
+              if (mounted) {
+                setState(() {
+                  mapController = controller;
+                });
+              }
+
+              final info = await geo.placemarkFromCoordinates(
+                widget.story.lat!,
+                widget.story.lon!,
+              );
+
+              if (!mounted) return;
+
+              final place = info[0];
+              final street = place.street!;
+              final address =
+                  '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+
+              setState(() {
+                placemark = place;
+              });
+
+              defineMarker(
+                LatLng(widget.story.lat!, widget.story.lon!),
+                street,
+                address,
+              );
+
               if (mounted) {
                 setState(() {
                   mapController = controller;
@@ -87,21 +118,50 @@ class _BodyOfDetailWidgetState extends State<BodyOfDetailWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Column(
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       FloatingActionButton.small(
-                        heroTag: "zoom-in",
+                        heroTag: "show-image",
                         onPressed: () {
-                          mapController?.animateCamera(CameraUpdate.zoomIn());
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return Dialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Showimagewidget(
+                                  imageUrl: widget.story.photoUrl,
+                                ),
+                              );
+                            },
+                          );
                         },
-                        child: const Icon(Icons.add),
+                        child: const Icon(Icons.image),
                       ),
-                      FloatingActionButton.small(
-                        heroTag: "zoom-out",
-                        onPressed: () {
-                          mapController?.animateCamera(CameraUpdate.zoomOut());
-                        },
-                        child: const Icon(Icons.remove),
+                      Column(
+                        children: [
+                          FloatingActionButton.small(
+                            heroTag: "zoom-in",
+                            onPressed: () {
+                              mapController?.animateCamera(
+                                CameraUpdate.zoomIn(),
+                              );
+                            },
+                            child: const Icon(Icons.add),
+                          ),
+                          FloatingActionButton.small(
+                            heroTag: "zoom-out",
+                            onPressed: () {
+                              mapController?.animateCamera(
+                                CameraUpdate.zoomOut(),
+                              );
+                            },
+                            child: const Icon(Icons.remove),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -188,7 +248,7 @@ class _BodyOfDetailWidgetState extends State<BodyOfDetailWidget> {
                 borderRadius: BorderRadius.circular(12.0),
                 child: Hero(
                   tag: widget.story.photoUrl,
-                  child: _buildImage(widget.story.photoUrl),
+                  child: Showimagewidget(imageUrl: widget.story.photoUrl),
                 ),
               ),
             ),
@@ -248,27 +308,16 @@ class _BodyOfDetailWidgetState extends State<BodyOfDetailWidget> {
     );
   }
 
-  Widget _buildImage(String imageUrl) {
-    if (imageUrl.endsWith('.svg')) {
-      return SvgPicture.network(
-        imageUrl,
-        width: double.infinity,
-        height: 400,
-        placeholderBuilder:
-            (context) => const Center(child: CircularProgressIndicator()),
-      );
-    } else {
-      return CachedNetworkImage(
-        imageUrl: imageUrl,
-        height: 400,
-        width: double.infinity,
-        progressIndicatorBuilder:
-            (context, url, progress) => Center(
-              child: CircularProgressIndicator(value: progress.progress),
-            ),
-        errorWidget: (context, url, error) => const Icon(Icons.error, size: 50),
-      );
-    }
+  void defineMarker(LatLng latLng, String street, String address) {
+    final marker = Marker(
+      markerId: const MarkerId("source"),
+      position: latLng,
+      infoWindow: InfoWindow(title: street, snippet: address),
+    );
+    setState(() {
+      markers.clear();
+      markers.add(marker);
+    });
   }
 
   String _formatDate(DateTime date) {

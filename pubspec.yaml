@@ -32,6 +32,8 @@ dependencies:
   google_maps_flutter: ^2.10.1
   google_maps_flutter_web: ^0.5.11
   geocoding: ^3.0.0
+  location: ^8.0.0
+  carousel_slider: ^5.0.0
 
 dev_dependencies:
   flutter_test:
