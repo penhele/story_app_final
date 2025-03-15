@@ -4,11 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:story_app_final/screen/upload/show_image_widget.dart';
 
+import '../../screen/upload/show_image_widget.dart';
 import '../../data/common/common.dart';
 import '../../provider/story_list_provider.dart';
 import '../../data/model/story/add_story_request.dart';
@@ -57,7 +58,10 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
             GoogleMap(
               initialCameraPosition: CameraPosition(
                 zoom: 18,
-                target: LatLng(monasLocation.latitude - 0.0005, monasLocation.longitude),
+                target: LatLng(
+                  monasLocation.latitude - 0.0005,
+                  monasLocation.longitude,
+                ),
               ),
               markers: markers,
               zoomControlsEnabled: false,
@@ -179,7 +183,10 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
                   const SizedBox(height: 16.0),
 
                   addStoryProvider.isAddStoryLoading
-                      ? const CircularProgressIndicator()
+                      ? LoadingAnimationWidget.horizontalRotatingDots(
+                        color: Colors.black,
+                        size: 40,
+                      )
                       : SizedBox(
                         width: double.infinity,
                         height: 50,

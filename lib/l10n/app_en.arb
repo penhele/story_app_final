@@ -32,5 +32,6 @@
     "retry": "Retry",
     "loading": "Loading...",
     "loadingData": "Loading data...",
-    "logoutTooltip": "Logout"
+    "logoutTooltip": "Logout",
+    "noAddressError": "No address found for this location"
 }

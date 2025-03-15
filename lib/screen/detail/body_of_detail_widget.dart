@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:story_app_final/screen/detail/show_image_widget.dart';
+import '../../screen/detail/show_image_widget.dart';
 import '../../data/common/common.dart';
 import '../../data/model/story/story.dart';
+import 'placemark_widget.dart';
 
 class BodyOfDetailWidget extends StatefulWidget {
   final Story story;
@@ -51,7 +52,6 @@ class _BodyOfDetailWidgetState extends State<BodyOfDetailWidget> {
   @override
   Widget build(BuildContext context) {
     bool hasLocation = widget.story.lat != null && widget.story.lon != null;
-    // bool locationValid
 
     if (hasLocation) {
       return _withMap();
@@ -67,7 +67,7 @@ class _BodyOfDetailWidgetState extends State<BodyOfDetailWidget> {
           GoogleMap(
             markers: markers,
             initialCameraPosition: CameraPosition(
-              zoom: 18,
+              zoom: 16,
               target: LatLng(widget.story.lat! - 0.0005, widget.story.lon!),
             ),
             onMapCreated: (controller) async {
@@ -77,27 +77,54 @@ class _BodyOfDetailWidgetState extends State<BodyOfDetailWidget> {
                 });
               }
 
-              final info = await geo.placemarkFromCoordinates(
-                widget.story.lat!,
-                widget.story.lon!,
-              );
-
               if (!mounted) return;
 
-              final place = info[0];
-              final street = place.street!;
-              final address =
-                  '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+              try {
+                final info = await geo.placemarkFromCoordinates(
+                  widget.story.lat!,
+                  widget.story.lon!,
+                );
 
-              setState(() {
-                placemark = place;
-              });
+                final place = info[0];
+                final street = place.street!;
+                final address =
+                    '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
 
-              defineMarker(
-                LatLng(widget.story.lat!, widget.story.lon!),
-                street,
-                address,
-              );
+                setState(() {
+                  placemark = place;
+                });
+
+                defineMarker(
+                  LatLng(widget.story.lat!, widget.story.lon!),
+                  street,
+                  address,
+                );
+              } catch (e) {
+                final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+                scaffoldMessenger.showSnackBar(
+                  _buildSnackBar(
+                    AppLocalizations.of(context)!.noAddressError,
+                    Colors.red,
+                  ),
+                );
+
+                setState(() {
+                  placemark = geo.Placemark(
+                    street: 'Unknown Street',
+                    subLocality: 'Unknown Area',
+                    locality: "Unknown City",
+                    postalCode: '000000',
+                    country: 'Unknown Country',
+                  );
+                });
+
+                defineMarker(
+                  LatLng(widget.story.lat!, widget.story.lon!),
+                  "Unknown Street",
+                  "Unknown Area, Unknown City, 00000, Unknown Country",
+                );
+              }
 
               if (mounted) {
                 setState(() {
@@ -110,13 +137,25 @@ class _BodyOfDetailWidgetState extends State<BodyOfDetailWidget> {
             mapToolbarEnabled: false,
           ),
           Positioned(
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  if (placemark == null)
+                    const SizedBox()
+                  else
+                    PlacemarkWidget(placemark: placemark!),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -322,5 +361,12 @@ class _BodyOfDetailWidgetState extends State<BodyOfDetailWidget> {
 
   String _formatDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year}";
+  }
+
+  SnackBar _buildSnackBar(String message, Color color) {
+    return SnackBar(
+      content: Text(message, style: const TextStyle(color: Colors.white)),
+      backgroundColor: color,
+    );
   }
 }
