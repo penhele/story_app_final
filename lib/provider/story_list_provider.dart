@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:story_app_final/data/model/story/story.dart';
+import '../data/model/story/story.dart';
 import '../data/api/api_service.dart';
 import '../provider/auth_provider.dart';
 import '../static/story_list_result_state.dart';

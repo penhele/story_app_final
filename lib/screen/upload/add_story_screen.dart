@@ -39,7 +39,7 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
   @override
   void initState() {
     super.initState();
-    seletedLocation = monasLocation;
+    seletedLocation = null;
   }
 
   @override
@@ -191,7 +191,52 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton.icon(
-                          onPressed: () async => await _uploadStory(context),
+                          onPressed: () async {
+                            if (seletedLocation == null) {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.warningTitle,
+                                    ),
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.selectedLocationNull,
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.cancelText,
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          Navigator.of(context).pop();
+                                          await _uploadStory(context);
+                                        },
+                                        child: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.acceptText,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            } else {
+                              await _uploadStory(context);
+                            }
+                          },
                           icon: const Icon(
                             Icons.cloud_upload,
                             color: Colors.white,
@@ -340,8 +385,8 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
     final AddStoryRequest addStory = AddStoryRequest(
       description: descriptionController.text,
       photo: imageFile,
-      lat: seletedLocation!.latitude,
-      lon: seletedLocation!.longitude,
+      lat: seletedLocation?.latitude,
+      lon: seletedLocation?.longitude,
     );
 
     try {

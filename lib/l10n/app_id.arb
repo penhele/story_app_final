@@ -47,5 +47,9 @@
     "loading": "Memuat...",
     "loadingData": "Memuat data...",
     "logoutTooltip": "Keluar",
-    "noAddressError": "Tidak ada alamat untuk lokasi ini"
+    "noAddressError": "Tidak ada alamat untuk lokasi ini",
+    "cancelText": "BATAL",
+    "acceptText": "LANJUTKAN",
+    "selectedLocationNull": "Anda belum memilih lokasi. Apakah Anda ingin melanjutkan?",
+    "warningTitle": "Peringatan"
 }

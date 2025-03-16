@@ -33,5 +33,9 @@
     "loading": "Loading...",
     "loadingData": "Loading data...",
     "logoutTooltip": "Logout",
-    "noAddressError": "No address found for this location"
+    "noAddressError": "No address found for this location",
+    "cancelText": "CANCEL",
+    "acceptText": "ACCEPT",
+    "selectedLocationNull": "You haven't selected a location. Do you want to continue?",
+    "warningTitle": "Warning"
 }
