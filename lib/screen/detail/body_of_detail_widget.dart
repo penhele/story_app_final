@@ -67,7 +67,7 @@ class _BodyOfDetailWidgetState extends State<BodyOfDetailWidget> {
           GoogleMap(
             markers: markers,
             initialCameraPosition: CameraPosition(
-              zoom: 16,
+              zoom: 8,
               target: LatLng(widget.story.lat! - 0.0005, widget.story.lon!),
             ),
             onMapCreated: (controller) async {
